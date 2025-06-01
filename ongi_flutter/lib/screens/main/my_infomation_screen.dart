@@ -4,8 +4,10 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../providers/user_provider.dart';
 import '../../providers/feed_provider.dart';
+import '../../providers/sign_up_provider.dart';
 import '../../services/api/api_service.dart';
 import '../feed/feed_detail_screen.dart';
+import '../auth/sign_up_start.dart';
 
 class MyInformationScreenPage extends StatefulWidget {
   @override
@@ -15,7 +17,7 @@ class MyInformationScreenPage extends StatefulWidget {
 class _MyInformationScreenPageState extends State<MyInformationScreenPage> {
   static const String _headerImagePath = 'assets/images/eaves.png';
   static const String _defaultProfilePath = 'assets/images/default_profile.png';
-  static const String _editInfoButtonText = '정보 수정';
+  static const String _logoutButtonText = '로그아웃';
   static const String _myFeedsTitle = '내 피드';
   static const String _rankPrefix = "랭크: ";
   static const String _feedCountPrefix = "내 피드 수: ";
@@ -126,15 +128,10 @@ class _MyInformationScreenPageState extends State<MyInformationScreenPage> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      _showErrorSnackBar(_uploadErrorMessage);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_uploadErrorMessage)),
+      );
     }
-  }
-
-  /// 에러 스낵바 표시
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
   }
 
   /// 피드 상세 페이지로 이동
@@ -230,7 +227,7 @@ class _MyInformationScreenPageState extends State<MyInformationScreenPage> {
         const SizedBox(height: 20),
         _buildFeedCount(feedProvider),
         const SizedBox(height: 24),
-        _buildEditButton(),
+        _buildLogoutButton(),
         const SizedBox(height: 30),
       ],
     );
@@ -271,11 +268,16 @@ class _MyInformationScreenPageState extends State<MyInformationScreenPage> {
     );
   }
 
-  /// 정보 수정 버튼
-  Widget _buildEditButton() {
+  /// 로그아웃 버튼
+  Widget _buildLogoutButton() {
     return ElevatedButton(
       onPressed: () {
-        // 정보 수정 화면으로 이동 (구현 필요)
+        Provider.of<SignUpProvider>(context, listen: false).logout();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => SignUpStartPage()),
+              (route) => false,
+        );
       },
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -285,7 +287,7 @@ class _MyInformationScreenPageState extends State<MyInformationScreenPage> {
           borderRadius: BorderRadius.circular(30),
         ),
       ),
-      child: const Text(_editInfoButtonText),
+      child: const Text(_logoutButtonText),
     );
   }
 
